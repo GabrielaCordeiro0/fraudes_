@@ -2,7 +2,7 @@
 
 Projeto de exemplo para detecção de fraudes em transações financeiras usando Python e scikit-learn.
 
-## 🚀 Stack
+## 🚀 Ferramentas
 - Python 3.11
 - pandas, scikit-learn, RandomForest
 - pytest, pre-commit, GitHub Actions
