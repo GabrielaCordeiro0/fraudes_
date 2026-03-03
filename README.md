@@ -2,39 +2,33 @@
 
 ## 📌 Executive Summary
 
-Fraud detection in financial systems is a high-impact risk management problem.
+Somos um banco digital com 2 milhões de clientes ativos.
 
-This project builds and compares multiple machine learning models to detect fraudulent credit card transactions using a highly imbalanced real-world dataset.
+Nos últimos 3 meses:
 
-Instead of optimizing for accuracy, the focus is on:
+Volume mensal de transações: 35 milhões
 
-- Maximizing fraud detection (Recall)
-- Controlling false alarms (Precision)
-- Understanding model trade-offs
-- Evaluating business impact of classification errors
+Ticket médio: R$210
+
+Taxa de fraude atual: 0,18%
+
+Perda média por fraude confirmada: R$480
+
+Prejuízo mensal estimado: ~R$30 milhões
+
+Nosso modelo atual é antigo e gera muitos falsos positivos, bloqueando cartões legítimos e gerando insatisfação.
 
 ---
 
 ## 📊 Business Problem
 
-Fraudulent transactions represent less than 0.2% of total transactions, but generate disproportionate financial losses.
+Queremos desenvolver um modelo de detecção de fraude que:
 
-A model optimized only for accuracy can achieve over 99% accuracy while failing to detect fraud.
+Reduza perdas financeiras
 
-Two types of errors must be balanced:
+Minimize bloqueios indevidos
 
-- **False Negative (FN):** Fraud not detected → direct financial loss  
-- **False Positive (FP):** Legitimate transaction blocked → customer friction & operational cost  
-
-Therefore, this project prioritizes:
-
-- Precision  
-- Recall  
-- F1-score  
-- Confusion Matrix  
-- Threshold behavior  
-
----
+Seja interpretável o suficiente para justificar decisões regulatórias
 
 ## 📦 Dataset
 
@@ -49,11 +43,20 @@ Dataset characteristics:
 - Features anonymized via PCA (V1–V28)
 - Includes `Time`, `Amount`, and `Class` (target)
 
----
+## 🛠️ Tecnologias Utilizadas
+Python / Pandas (Manipulação de Dados)
+
+XGBoost (Algoritmo Principal)
+
+Scikit-Learn (Métricas e Preprocessamento)
+
+Stratified K-Fold Cross-Validation (Validação Robusta)
+
+RandomizedSearchCV (Otimização de Hiperparâmetros)
 
 ## ⚙️ Methodology
 
-### 1️⃣ Data Processing
+### 1️ Data Processing
 
 - Data ingestion using PySpark
 - Conversion to Pandas for modeling
@@ -65,17 +68,12 @@ Stratification ensures fraud proportion consistency across datasets.
 
 ---
 
-### 2️⃣ Handling Class Imbalance
+### 2️ Handling Class Imbalance
 
-Because fraud cases are extremely rare, specific strategies were applied:
+A abordagem escolhida foi o ajuste de Threshold 
+Por padrão, o modelo classifica como "Fraude" tudo que tem probabilidade acima de 0.5. Em dados desbalanceados, você pode baixar esse limite para 0.2 ou 0.3 para capturar mais fraudes (aumentar o Recall).
 
-- Logistic Regression with `class_weight='balanced'`
-- Tree-based models evaluated under original distribution
-- Evaluation focused on Recall and Precision rather than Accuracy
-
----
-
-### 3️⃣ Model Comparison
+### 3️ Model Comparison
 
 Three models were evaluated:
 
@@ -100,56 +98,35 @@ The goal was not only performance comparison but understanding trade-offs betwee
 
 ## 📊 Evaluation Strategy
 
-Due to severe class imbalance, performance was evaluated using:
+Logistic Regression (Seu Baseline): É o modelo "desesperado". Ele tem um Recall altíssimo (91%), mas uma precisão pífia (6%). Ele detecta quase tudo, mas atira para todos os lados.
 
-- Confusion Matrix
-- Precision
-- Recall
-- F1-score
+Random Forest: É o modelo "conservador". Tem uma Precisão absurda (96%), mas o menor Recall dos três (76%). Ele raramente erra um alarme, mas deixa passar 1 a cada 4 fraudes.
 
-Accuracy was intentionally not used as a primary metric.
+XGBoost: É o modelo "equilibrado". Ele tem o melhor AP (0.867). Ele consegue manter um Recall alto (86%) com uma Precisão aceitável (71%).
 
-### Example Result (Logistic Regression)
+Vamos projetar o prejuízo em cima de 100 casos reais de fraude (para facilitar a conta proporcional):
 
-Confusion Matrix:
-[[56814 50]
-[ 10 88]]
+Logistic Regression 8 perdidas (R$ 3.840)~1.400 falsos (R$ 28.000)R$ 31.840
+Random Forest 24 perdidas (R$ 11.520)~3 falsos (R$ 60)R$ 11.580
+XGBoost 13 perdidas (R$ 6.240)~35 falsos (R$ 700)R$ 6.940
 
-Precision (Fraud): 0.63
-Recall (Fraud): 0.89
-F1-score: 0.74
+ O XGBoost é o grande vencedor. Mesmo gerando um pouco mais de alarmes falsos que o Random Forest, a capacidade dele de evitar que a empresa perca R$ 480 em várias transações compensa muito o custo operacional.
 
-### Interpretation
-
-- 89% of fraud cases detected
-- 63% of flagged transactions are truly fraud
-- Balanced trade-off between detection and false alerts
-
----
-
-## 📈 Model Selection Insight
-
-- Logistic Regression provides strong baseline performance.
-- Random Forest improves nonlinear detection capacity.
-- LightGBM offers scalability and competitive predictive power.
-
-Final model choice depends on:
-
-- Operational tolerance for false positives
-- Financial impact of missed fraud
-- Deployment constraints
-
----
 
 ## 🧠 Key Takeaways
 
-- Accuracy is misleading in highly imbalanced fraud problems.
-- Recall is critical when fraud cost is high.
-- Class imbalance requires explicit modeling strategy.
-- Model evaluation must reflect business trade-offs.
-- Simple models can perform competitively when properly adjusted.
+. Eficiência Financeira (ROI)
+Considerando uma perda média de R$ 480,00 por fraude e um custo operacional de R$ 20,00 por alarme falso (SAC/Logística):
 
----
+Economia Gerada: O modelo evitou uma perda direta de R$ 42.240,00.
+
+Custo Total do Erro: O prejuízo residual foi reduzido para R$ 5.550,00, o melhor desempenho entre todos os modelos testados.
+
+2. Experiência do Cliente (Churn)
+A taxa de falsos positivos foi controlada para evitar o bloqueio em massa. Com uma precisão de 63,8%, o modelo demonstra alta confiança, afetando apenas 0,08% da base de clientes legítimos. Isso minimiza a fricção no uso do cartão e reduz o abandono da plataforma.
+
+3. Interpretabilidade e Governança
+Através da análise de Feature Importance, o modelo identifica quais padrões comportamentais (variáveis V17, V14, V12) são críticos para a decisão. Isso permite que o time de risco audite as decisões do modelo e cumpra requisitos regulatórios de transparência em algoritmos financeiros.
 
 ## 🚀 How to Run
 
