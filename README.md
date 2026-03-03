@@ -110,3 +110,61 @@ Due to severe class imbalance, performance was evaluated using:
 Accuracy was intentionally not used as a primary metric.
 
 ### Example Result (Logistic Regression)
+
+Confusion Matrix:
+[[56814 50]
+[ 10 88]]
+
+Precision (Fraud): 0.63
+Recall (Fraud): 0.89
+F1-score: 0.74
+
+### Interpretation
+
+- 89% of fraud cases detected
+- 63% of flagged transactions are truly fraud
+- Balanced trade-off between detection and false alerts
+
+---
+
+## 📈 Model Selection Insight
+
+- Logistic Regression provides strong baseline performance.
+- Random Forest improves nonlinear detection capacity.
+- LightGBM offers scalability and competitive predictive power.
+
+Final model choice depends on:
+
+- Operational tolerance for false positives
+- Financial impact of missed fraud
+- Deployment constraints
+
+---
+
+## 🧠 Key Takeaways
+
+- Accuracy is misleading in highly imbalanced fraud problems.
+- Recall is critical when fraud cost is high.
+- Class imbalance requires explicit modeling strategy.
+- Model evaluation must reflect business trade-offs.
+- Simple models can perform competitively when properly adjusted.
+
+---
+
+## 🚀 How to Run
+
+1. Install dependencies:
+
+
+
+2. Run the notebook or script.
+
+---
+
+## 📁 Project Structure
+
+---
+
+## 👩‍💻 Author
+
+Machine Learning applied with a business-impact orientation.
